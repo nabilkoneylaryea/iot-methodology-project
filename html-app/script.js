@@ -11,32 +11,47 @@
 // Connect to Azure IOT hub
 console.log('Connecting to Blynk...')
 
+// Getting DOM elements to manipulate
+const btnLedToggle = document.getElementById('btn-led');
+const ledStateField = document.getElementById('led-status');
+const heartRateField = document.getElementById('heart-rate');
+
+// Function to handle LED Control
+const onClick = () => {
+    console.log('Clicked')
+    toggleLED().then(() => { ledStateField.textContent = ledStatus(ledState); });
+}
+btnLedToggle.addEventListener('click', onClick);
+
 // FIXME: Just write one function that takes the pin as a param and reads the data -> wrap this function with others to read the heart rate and LED state
 
 // Read Pulse Sensor data
 let heartRate = 0;
 
-const readHeartRate = async() => {
+const readHeartRate = () => {
     const AUTH_TOKEN = '16UI0VsYRJ1pDSVYuwPw72uil19gHIVi';
     const PIN = 'v5';
     const request = `https://blynk.cloud/external/api/get?token=${AUTH_TOKEN}&${PIN}`;
 
     // Using Axios (could be done in a MERN app)
     // try {
-    //     data = await axios.get(request);
+    //     data =  axios.get(request);
     // }
     // catch(error) {
     //     console.log(`Error reading heart rate!: ${error}`);
     // }
 
-    await $.ajax(request,   // request url
+     $.ajax(request,   // request url
 	{            
 		success: function (data, status, xhr) {
             heartRate = data;
+            heartRateField.textContent = heartRate;
             console.log(`Success reading heart rate!: ${data}`);
+            readHeartRate();
 		},
         error: function(jqXhr, textStatus, errorMessage) {
             console.log(`Error reading heart rate!: ${errorMessage}`);
+            readHeartRate();
         }
 	});
 };
@@ -57,44 +72,47 @@ const ledStatus = (state) => {
 
     return status
 };
-const readLED = async() => {
+const readLED = () => {
     const AUTH_TOKEN = '16UI0VsYRJ1pDSVYuwPw72uil19gHIVi';
     const PIN = 'v0';
     const request = `https://blynk.cloud/external/api/get?token=${AUTH_TOKEN}&${PIN}`;
 
     // Using Axios (could be done in a MERN app)
     // try {
-    //     data = await axios.get(`https://blynk.cloud/external/api/get?token=${AUTH_TOKEN}&${PIN}`);
+    //     data =  axios.get(`https://blynk.cloud/external/api/get?token=${AUTH_TOKEN}&${PIN}`);
     // }
     // catch(error) {
     //     console.log(`Error reading LED state!: ${error}`);
     // }
 
-    await $.ajax(request,   // request url
+     $.ajax(request,   // request url
     {            
         success: function (data, status, xhr) {
             ledState = data;
+            ledStateField.textContent = ledStatus(ledState);
             console.log(`Success reading LED state!: ${data}`);
+            readLED();
         },
         error: function(jqXhr, textStatus, errorMessage) {
             console.log(`Error reading LED state!: ${errorMessage}`);
+            readLED();
         }
     });
 };
-const writeLEDLow = async() => {
+const writeLEDLow = () => {
     const AUTH_TOKEN = '16UI0VsYRJ1pDSVYuwPw72uil19gHIVi';
     const PIN = 'v0';
     const request = `https://blynk.cloud/external/api/update?token=${AUTH_TOKEN}&${PIN}=0`;
 
     // Using Axios (could be done in a MERN app)
     // try {
-    //     await axios.get(`https://blynk.cloud/external/api/update?token=${AUTH_TOKEN}&${PIN}=0`);
+    //      axios.get(`https://blynk.cloud/external/api/update?token=${AUTH_TOKEN}&${PIN}=0`);
     // }
     // catch(error) {
     //     console.log(`Error writing to LED state!: ${error}`);
     // }
 
-    await $.ajax(request,   // request url
+     $.ajax(request,   // request url
     {            
         success: function (data, status, xhr) {
             // ledState = 0;
@@ -105,20 +123,20 @@ const writeLEDLow = async() => {
         }
     });
 };
-const writeLEDHigh= async() => {
+const writeLEDHigh= () => {
     const AUTH_TOKEN = '16UI0VsYRJ1pDSVYuwPw72uil19gHIVi';
     const PIN = 'v0';
     const request = `https://blynk.cloud/external/api/update?token=${AUTH_TOKEN}&${PIN}=1`;
 
     // Using Axios (could be done in a MERN app)
     // try {
-    //     await axios.get(`https://blynk.cloud/external/api/update?token=${AUTH_TOKEN}&${PIN}=1`);
+    //      axios.get(`https://blynk.cloud/external/api/update?token=${AUTH_TOKEN}&${PIN}=1`);
     // }
     // catch(error) {
     //     console.log(`Error writing to LED state!: ${error}`);
     // }
 
-    await $.ajax(request,   // request url
+     $.ajax(request,   // request url
     {            
         success: function (data, status, xhr) {
             // ledState = 1;
@@ -129,31 +147,23 @@ const writeLEDHigh= async() => {
         }
     });
 };
-const toggleLED = async() => {
+const toggleLED = () => {
     if(ledState == 1) {
-        await writeLEDLow();
+         writeLEDLow();
         ledState = 0;
     }
     else {
-        await writeLEDHigh();
+         writeLEDHigh();
         ledState = 1;
     }
 };
 
-// Getting DOM elements to manipulate
-const btnLedToggle = document.getElementById('btn-led');
-const ledStateField = document.getElementById('led-status');
-const heartRateField = document.getElementById('heart-rate');
-
-// Function to handle LED Control
-const onClick = () => {
-    console.log('Clicked')
-    toggleLED().then(() => { ledStateField.textContent = ledStatus(ledState); });
-}
-
 // Manipulate DOM based on values recieved from Azure
-btnLedToggle.addEventListener('click', onClick);
+
 // ledStateField.textContent = ledState == 1 ? 'ON' : 'OFF';
-readLED().then(() => { ledStateField.textContent = ledStatus(ledState); });
-readHeartRate().then(() => { heartRateField.textContent = heartRate; });
+// readLED().then(() => { ledStateField.textContent = ledStatus(ledState); });
+// readHeartRate().then(() => { heartRateField.textContent = heartRate; });
+
+readLED();
+readHeartRate();
 
